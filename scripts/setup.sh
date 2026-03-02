@@ -1,50 +1,50 @@
 #!/bin/bash
-# MemoryCore 系统配置脚本
-# 配置环境变量、系统别名、自动化任务
+# MemoryCore ç³»ç»éç½®èæ¬
+# éç½®ç¯å¢åéãç³»ç»å«åãèªå¨åä»»å¡
 
 set -e
 
-# 颜色输出
+# é¢è²è¾åº
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-# 配置变量
+# éç½®åé
 INSTALL_DIR="/root/.openclaw/workspace"
 MEMORY_CORE_DIR="${INSTALL_DIR}/memory-system-v1.0"
 ZHIPUAI_API_KEY="${ZHIPUAI_API_KEY:-}"
 
-echo -e "${GREEN}🔧 MemoryCore 系统配置脚本${NC}"
+echo -e "${GREEN}ð§ MemoryCore ç³»ç»éç½®èæ¬${NC}"
 echo "="*80
 echo ""
 
-# 检查智谱 AI API Key
+# æ£æ¥æºè°± AI API Key
 if [ -z "$ZHIPUAI_API_KEY" ]; then
-    echo -e "${YELLOW}⚠️ ZHIPUAI_API_KEY 环境变量未设置${NC}"
-    echo -e "${YELLOW}请设置后重试${NC}"
+    echo -e "${YELLOW}â ï¸ ZHIPUAI_API_KEY ç¯å¢åéæªè®¾ç½®${NC}"
+    echo -e "${YELLOW}è¯·è®¾ç½®åéè¯${NC}"
     exit 1
 fi
 
-# 第 1 步：配置 .bashrc
-echo -e "${BLUE}第 1 步：配置 .bashrc${NC}"
+# ç¬¬ 1 æ­¥ï¼éç½® .bashrc
+echo -e "${BLUE}ç¬¬ 1 æ­¥ï¼éç½® .bashrc${NC}"
 echo "-"*80
 
-# 备份原文件
+# å¤ä»½åæä»¶
 if [ -f ~/.bashrc ]; then
     cp ~/.bashrc ~/.bashrc.backup.$(date +%Y%m%d)
-    echo -e "${GREEN}✅ 已备份 .bashrc${NC}"
+    echo -e "${GREEN}â å·²å¤ä»½ .bashrc${NC}"
 fi
 
-# 添加环境变量
+# æ·»å ç¯å¢åé
 cat >> ~/.bashrc << 'EOF'
 
-# MemoryCore 环境变量 (2026-03-02)
+# MemoryCore ç¯å¢åé (2026-03-02)
 export ZHIPUAI_API_KEY="__ZHIPUAI_API_KEY_PLACEHOLDER__"
 export LC_ALL=C.UTF-8
 
-# MemoryCore 别名
+# MemoryCore å«å
 export MEMORY_CORE_DIR="$HOME/.openclaw/workspace/memory-system-v1.0"
 alias mem="cd \$MEMORY_CORE_DIR && python3 src/memory.py"
 alias memsearch="\$MEMORY_CORE_DIR/python3 src/memory.py search"
@@ -54,14 +54,14 @@ alias membuild="\$MEMORY_CORE_DIR/python3 src/memory.py vector-build --provider 
 
 EOF
 
-# 替换 API Key 占位符
-sed -i "s/__ZHIPUAI_API_KEY_PLACEHOLDER__/$ZHIPUAI_API_KEY/g" ~/.bashrc
+# æ¿æ¢ API Key å ä½ç¬¦
+$SED_I "s/__ZHIPUAI_API_KEY_PLACEHOLDER__/$ZHIPUAI_API_KEY/g" ~/.bashrc
 
-echo -e "${GREEN}✅ .bashrc 配置完成${NC}"
+echo -e "${GREEN}â .bashrc éç½®å®æ${NC}"
 echo ""
 
-# 第 2 步：配置 HEARTBEAT
-echo -e "${BLUE}第 2 步：配置 HEARTBEAT.md${NC}"
+# ç¬¬ 2 æ­¥ï¼éç½® HEARTBEAT
+echo -e "${BLUE}ç¬¬ 2 æ­¥ï¼éç½® HEARTBEAT.md${NC}"
 echo "-"*80
 
 HEARTBEAT_FILE="$INSTALL_DIR/HEARTBEAT.md"
@@ -71,60 +71,60 @@ if [ -f "$HEARTBEAT_FILE" ]; then
 fi
 
 cat > "$HEARTBEAT_FILE" << 'EOF'
-# HEARTBEAT.md - MemoryCore 集成
+# HEARTBEAT.md - MemoryCore éæ
 
-## 🧠 MemoryCore 状态检查 (每小时)
+## ð§  MemoryCore ç¶ææ£æ¥ (æ¯å°æ¶)
 
-### 1. 记忆系统检查
+### 1. è®°å¿ç³»ç»æ£æ¥
 ```bash
 cd ~/.openclaw/workspace/memory-system-v1.0
 export ZHIPUAI_API_KEY="__ZHIPUAI_API_KEY_PLACEHOLDER__"
 export LC_ALL=C.UTF-8
 
-# 查看状态
+# æ¥çç¶æ
 python3 src/memory.py status
 
-# 如果向量索引有变化，重建
+# å¦æåéç´¢å¼æååï¼éå»º
 python3 src/memory.py vector-build --provider zhipuai
 ```
 
-### 2. 每日整合
+### 2. æ¯æ¥æ´å
 ```bash
 cd ~/.openclaw/workspace/memory-system-v1.0
 export ZHIPUAI_API_KEY="__ZHIPUAI_API_KEY_PLACEHOLDER__"
 export LC_ALL=C.UTF-8
 
-# 记忆整合
+# è®°å¿æ´å
 python3 src/memory.py consolidate
 ```
 
-### 3. 健康检查
+### 3. å¥åº·æ£æ¥
 ```bash
-# 检查向量索引大小
+# æ£æ¥åéç´¢å¼å¤§å°
 ls -lh ~/.openclaw/workspace/memory-system-v1.0/memory/vectors.db
 
-# 检查活跃记忆数量
+# æ£æ¥æ´»è·è®°å¿æ°é
 cat ~/.openclaw/workspace/memory-system-v1.0/memory/layer2/active/facts.jsonl | wc -l
 
-# 检查向量索引状态
+# æ£æ¥åéç´¢å¼ç¶æ
 sqlite3 ~/.openclaw/workspace/memory-system-v1.0/memory/vectors.db "SELECT COUNT(*) as total FROM vectors;"
 ```
 
 ---
 
-## 🎯 预警规则
+## ð¯ é¢è­¦è§å
 
-### 检查项
-- **活跃记忆数 > 10000**: 建议整合
-- **向量索引文件 > 1GB**: 建议重建
-- **向量索引数 ≠ 活跃记忆数**: 需要重建
-- **API 调用失败**: 检查智谱 AI Key
+### æ£æ¥é¡¹
+- **æ´»è·è®°å¿æ° > 10000**: å»ºè®®æ´å
+- **åéç´¢å¼æä»¶ > 1GB**: å»ºè®®éå»º
+- **åéç´¢å¼æ° â  æ´»è·è®°å¿æ°**: éè¦éå»º
+- **API è°ç¨å¤±è´¥**: æ£æ¥æºè°± AI Key
 
 ---
 
-## 🔧 自动化脚本
+## ð§ èªå¨åèæ¬
 
-### 每小时执行
+### æ¯å°æ¶æ§è¡
 ```bash
 #!/bin/bash
 # memory-core-health-check.sh
@@ -133,69 +133,69 @@ cd ~/.openclaw/workspace/memory-system-v1.0
 export ZHIPUAI_API_KEY="__ZHIPUAI_API_KEY_PLACEHOLDER__"
 export LC_ALL=C.UTF-8
 
-# 状态检查
+# ç¶ææ£æ¥
 python3 src/memory.py status | head -30
 
-# 向量索引检查
+# åéç´¢å¼æ£æ¥
 VECTOR_COUNT=$(sqlite3 memory/vectors.db "SELECT COUNT(*) FROM vectors;" 2>/dev/null || echo "0")
 ACTIVE_COUNT=$(cat memory/layer2/active/facts.jsonl | wc -l)
 
 if [ "$VECTOR_COUNT" != "$ACTIVE_COUNT" ]; then
-    echo "⚠️ 向量索引不匹配，重建中..."
+    echo "â ï¸ åéç´¢å¼ä¸å¹éï¼éå»ºä¸­..."
     python3 src/memory.py vector-build --provider zhipuai
 fi
 ```
 EOF
 
-# 替换 API Key 占位符
-sed -i "s/__ZHIPUAI_API_KEY_PLACEHOLDER__/$ZHIPUAI_API_KEY/g" "$HEARTBEAT_FILE"
+# æ¿æ¢ API Key å ä½ç¬¦
+$SED_I "s/__ZHIPUAI_API_KEY_PLACEHOLDER__/$ZHIPUAI_API_KEY/g" "$HEARTBEAT_FILE"
 
-echo -e "${GREEN}✅ HEARTBEAT.md 配置完成${NC}"
+echo -e "${GREEN}â HEARTBEAT.md éç½®å®æ${NC}"
 echo ""
 
-# 第 3 步：配置 crontab（可选）
-echo -e "${BLUE}第 3 步：配置 crontab（可选）${NC}"
+# ç¬¬ 3 æ­¥ï¼éç½® crontabï¼å¯éï¼
+echo -e "${BLUE}ç¬¬ 3 æ­¥ï¼éç½® crontabï¼å¯éï¼${NC}"
 echo "-"*80
 
-read -p "是否配置 crontab 自动化任务？(y/n): " -n 1 -r
+read -p "æ¯å¦éç½® crontab èªå¨åä»»å¡ï¼(y/n): " -n 1 -r
 echo
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    # 备份原 crontab
+    # å¤ä»½å crontab
     crontab -l > /tmp/crontab.backup.$(date +%Y%m%d) 2>/dev/null || true
     
-    # 添加 MemoryCore 定时任务
+    # æ·»å  MemoryCore å®æ¶ä»»å¡
     (crontab -l 2>/dev/null; cat << EOF
 
-# MemoryCore 健康检查（每小时）
+# MemoryCore å¥åº·æ£æ¥ï¼æ¯å°æ¶ï¼
 0 * * * * cd ~/.openclaw/workspace/memory-system-v1.0 && export ZHIPUAI_API_KEY="$ZHIPUAI_API_KEY" && export LC_ALL=C.UTF-8 && python3 src/memory.py status >> /tmp/memorycore-status.log 2>&1
 
-# MemoryCore 记忆整合（每天凌晨 2 点）
+# MemoryCore è®°å¿æ´åï¼æ¯å¤©åæ¨ 2 ç¹ï¼
 0 2 * * * cd ~/.openclaw/workspace/memory-system-v1.0 && export ZHIPUAI_API_KEY="$ZHIPUAI_API_KEY" && export LC_ALL=C.UTF-8 && python3 src/memory.py consolidate >> /tmp/memorycore-consolidate.log 2>&1
 EOF
 ) | crontab -
     
-    echo -e "${GREEN}✅ crontab 配置完成${NC}"
+    echo -e "${GREEN}â crontab éç½®å®æ${NC}"
 else
-    echo -e "${YELLOW}⏭ 跳过 crontab 配置${NC}"
+    echo -e "${YELLOW}â­ è·³è¿ crontab éç½®${NC}"
 fi
 
 echo ""
 
-# 完成
+# å®æ
 echo "="*80
-echo -e "${GREEN}🎉 MemoryCore 系统配置完成！${NC}"
+echo -e "${GREEN}ð MemoryCore ç³»ç»éç½®å®æï¼${NC}"
 echo ""
-echo -e "${GREEN}📝 配置内容:${NC}"
-echo "1. ✅ .bashrc 已添加 MemoryCore 别名"
-echo "2. ✅ HEARTBEAT.md 已添加 MemoryCore 检查"
+echo -e "${GREEN}ð éç½®åå®¹:${NC}"
+echo "1. â .bashrc å·²æ·»å  MemoryCore å«å"
+echo "2. â HEARTBEAT.md å·²æ·»å  MemoryCore æ£æ¥"
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "3. ✅ crontab 已添加自动化任务"
+    echo "3. â crontab å·²æ·»å èªå¨åä»»å¡"
 fi
 echo ""
-echo -e "${YELLOW}下一步操作:${NC}"
-echo "1. 重新加载配置: source ~/.bashrc"
-echo "2. 运行验证脚本: ./verify.sh"
-echo "3. 开始使用: memsearch '关键词'"
+echo -e "${YELLOW}ä¸ä¸æ­¥æä½:${NC}"
+echo "1. éæ°å è½½éç½®: source ~/.bashrc"
+echo "2. è¿è¡éªè¯èæ¬: ./verify.sh"
+echo "3. å¼å§ä½¿ç¨: memsearch 'å³é®è¯'"
 echo ""
-echo -e "${GREEN}✅ 配置完成！${NC}"
+echo -e "${GREEN}â éç½®å®æï¼${NC}"
