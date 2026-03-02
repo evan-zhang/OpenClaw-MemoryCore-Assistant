@@ -1,0 +1,47 @@
+name: Smoke Test macOS
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Create venv
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install requests python-dateutil
+      - name: Download core_src to test
+        run: |
+          mkdir -p test_core_src
+          curl -sSL https://raw.githubusercontent.com/evan-zhang/OpenClaw-MemoryCore-Assistant/main/core_src/vector_embedding.py -o test_core_src/vector_embedding.py
+          curl -sSL https://raw.githubusercontent.com/evan-zhang/OpenClaw-MemoryCore-Assistant/main/core_src/vector_index.py -o test_core_src/vector_index.py
+          curl -sSL https://raw.githubusercontent.com/evan-zhang/OpenClaw-MemoryCore-Assistant/main/core_src/hybrid_search.py -o test_core_src/hybrid_search.py
+      - name: Run import test
+        run: |
+          . venv/bin/activate
+          python - <<'PY'
+import sys
+sys.path.insert(0, 'test_core_src')
+err=False
+for m in ('vector_embedding','vector_index','hybrid_search'):
+    try:
+        __import__(m)
+        print('imported',m)
+    except Exception as e:
+        print('FAILED import',m,e)
+        err=True
+if err:
+    raise SystemExit(1)
+print('All imports OK')
+PY
