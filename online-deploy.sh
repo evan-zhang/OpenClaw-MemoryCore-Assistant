@@ -28,13 +28,22 @@ fi
 echo "Cloning base repo..."
 git clone "$REPO_URL" "$INSTALL_DIR"
 
-# create venv
+# try to create venv; if unavailable fall back to --user installs
 VENV_DIR="$HOME/.memcore_venv"
-python3 -m venv "$VENV_DIR"
-# shellcheck disable=SC1090
-source "$VENV_DIR/bin/activate"
-python3 -m pip install --upgrade pip
-pip install --no-cache-dir requests python-dateutil || { echo "pip install failed"; exit 1; }
+FALLBACK_USER=0
+if python3 -m venv "$VENV_DIR" 2>/dev/null; then
+  # shellcheck disable=SC1090
+  source "$VENV_DIR/bin/activate"
+  python3 -m pip install --upgrade pip
+  pip install --no-cache-dir requests python-dateutil || { echo "pip install failed inside venv"; exit 1; }
+else
+  echo "${YELLOW}python3-venv not available; falling back to user-level pip installs${NC}"
+  FALLBACK_USER=1
+  python3 -m pip install --user --upgrade pip
+  python3 -m pip install --user requests python-dateutil || { echo "pip --user install failed"; exit 1; }
+  # ensure ~/.local/bin is on PATH for this session
+  export PATH="$HOME/.local/bin:$PATH"
+fi
 
 # download core patches
 mkdir -p "$INSTALL_DIR/src"
