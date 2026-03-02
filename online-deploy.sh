@@ -52,7 +52,7 @@ for f in vector_embedding.py vector_index.py hybrid_search.py memory.py; do
 done
 
 # test imports
-python3 - <<'PY'
+python3 - <<PY
 import sys
 sys.path.insert(0, '$INSTALL_DIR/src')
 for mod in ('vector_embedding','vector_index','hybrid_search'):

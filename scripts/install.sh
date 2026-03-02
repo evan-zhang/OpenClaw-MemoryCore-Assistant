@@ -52,7 +52,7 @@ done
 
 # 6. Test imports
 echo "Testing imports in venv..."
-python3 - <<'PY'
+python3 - <<PY
 import sys
 sys.path.insert(0, '$INSTALL_DIR/src')
 errs = []
