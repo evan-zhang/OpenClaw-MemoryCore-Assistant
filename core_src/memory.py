@@ -4492,7 +4492,8 @@ def main():
         parser_proactive_reset.set_defaults(func=cmd_proactive_reset)
 
     # v1.6.0: 向量检索命令
-    if VECTOR_SEARCH_ENABLED:
+    # Always register vector commands so users see them; runtime checks will provide clear error messages if not available.
+    if True:
         # vector-build: 构建向量索引
         parser_vector_build = subparsers.add_parser("vector-build", help="构建向量索引")
         parser_vector_build.add_argument("--batch-size", type=int, default=100, help="批量处理大小")
