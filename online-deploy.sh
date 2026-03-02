@@ -15,12 +15,15 @@ echo -e "${BLUE}============================================================${NC
 echo -e "${GREEN}🚀 MemoryCore v1.4.0 一键在线部署 (智谱 AI 增强版)${NC}"
 echo -e "${BLUE}============================================================${NC}"
 
-# 1. 环境检查
+# 1. 环境检查与 API Key 获取
 echo -e "\n${BLUE}[1/6] 正在检查系统环境...${NC}"
 
+# 修复 curl | bash 模式下的交互式输入
 if [ -z "$ZHIPUAI_API_KEY" ]; then
     echo -e "${YELLOW}⚠️  检测到 ZHIPUAI_API_KEY 环境变量未设置。${NC}"
-    read -p "请输入您的智谱 AI API Key: " ZHIPUAI_API_KEY
+    # 强制从终端读取输入
+    printf "${BLUE}请输入您的智谱 AI API Key: ${NC}"
+    read ZHIPUAI_API_KEY < /dev/tty
     if [ -z "$ZHIPUAI_API_KEY" ]; then
         echo -e "${RED}❌ 错误: API Key 不能为空。部署终止。${NC}"
         exit 1
@@ -28,10 +31,15 @@ if [ -z "$ZHIPUAI_API_KEY" ]; then
     export ZHIPUAI_API_KEY=$ZHIPUAI_API_KEY
 fi
 
-# 安装基础依赖
-if command -v apt-get &> /dev/null; then
+# 操作系统兼容性判断
+OS_TYPE=$(uname -s)
+if [ "$OS_TYPE" = "Darwin" ]; then
+    echo -e "${YELLOW}检测到 macOS 系统，请确保已安装 python3, sqlite3 和 git。${NC}"
+elif command -v apt-get &> /dev/null; then
     echo "正在安装系统依赖 (sqlite3, python3-pip, jq, git)..."
     sudo apt-get update -qq && sudo apt-get install -y -qq sqlite3 python3-pip jq git &> /dev/null
+else
+    echo -e "${YELLOW}⚠️  未检测到 apt-get，请确保手动安装了 sqlite3, python3-pip, jq 和 git。${NC}"
 fi
 
 # 2. 克隆基础仓库
@@ -61,7 +69,8 @@ echo -e "${GREEN}✅ 智谱 AI 核心逻辑补丁应用成功${NC}"
 
 # 4. 安装 Python 依赖
 echo -e "\n${BLUE}[4/6] 正在安装 Python 依赖...${NC}"
-pip3 install --quiet requests python-dateutil
+# 使用 --user 避免权限问题，尤其是 macOS
+pip3 install --quiet --user requests python-dateutil || pip3 install --quiet requests python-dateutil
 
 # 5. 初始化与向量索引构建
 echo -e "\n${BLUE}[5/6] 正在初始化系统并构建向量索引...${NC}"
@@ -89,7 +98,12 @@ python3 src/memory.py vector-build --provider zhipuai
 # 6. 配置别名
 echo -e "\n${BLUE}[6/6] 正在配置系统别名...${NC}"
 SHELL_RC="$HOME/.bashrc"
-[ -f "$HOME/.zshrc" ] && SHELL_RC="$HOME/.zshrc"
+if [ "$OS_TYPE" = "Darwin" ]; then
+    # macOS 默认使用 zsh
+    SHELL_RC="$HOME/.zshrc"
+elif [ -f "$HOME/.zshrc" ]; then
+    SHELL_RC="$HOME/.zshrc"
+fi
 
 if ! grep -q "memory-system-v1.0" "$SHELL_RC"; then
     cat >> "$SHELL_RC" << EOF
